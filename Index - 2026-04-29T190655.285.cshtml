@@ -8810,13 +8810,13 @@
                         var claimAI_availed  = document.getElementById('ddlReceivedAccomodation');
                         var claimAI_approved = document.getElementById('ddlApprovedFacility');
                         if (claimAI_availed && claimAI_approved && claimAI_availed.value) {
-                            claimAI_approved.disabled = false;
+                            claimAI_approved.disabled = false; // keep enabled for form serialization
                             claimAI_approved.value    = claimAI_availed.value;
                             window._claimAI_approvedFacilityId = claimAI_availed.value;
                             console.log('[ClaimAI] ApprovedFacility set to availed:', claimAI_availed.value);
                         }
 
-                        // 2. Room Days = 1, ICU Days = 0
+                        // 2. Room Days = 1, ICU Days = 0 — keep enabled for form serialization
                         var claimAI_room = document.getElementById('txtRoomDays');
                         var claimAI_icu  = document.getElementById('txtICUDays');
                         if (claimAI_room) {
@@ -8838,26 +8838,42 @@
                         }
 
                         // 4. Bill No = 9876
-                        // Try common Bill No field IDs used in HospitalizationDetails partial
                         var claimAI_billFields = ['txtBillNo','txtHospBillNo','txtInvoiceNo',
                             'txtBillNumber','txtHospitalBillNo','BillNo','InvoiceNo'];
                         for (var bi = 0; bi < claimAI_billFields.length; bi++) {
                             var claimAI_bill = document.getElementById(claimAI_billFields[bi]);
                             if (claimAI_bill) {
-                                claimAI_bill.value = '9876';
+                                claimAI_bill.disabled = false;
+                                claimAI_bill.value    = '9876';
                                 console.log('[ClaimAI] Bill No set to 9876 via:', claimAI_billFields[bi]);
                                 break;
                             }
                         }
 
-                        // 5. Click Save Hospitalization Details button
+                        // 5. Click Save — fields stay enabled so Spectra's form serializer picks them up
                         setTimeout(function() {
                             var claimAI_saveBtn = document.getElementById('btnHospDetailsSave');
                             if (claimAI_saveBtn) {
                                 claimAI_saveBtn.click();
                                 console.log('[ClaimAI] btnHospDetailsSave clicked');
+                                // Re-disable after save fires (500ms delay)
+                                setTimeout(function() {
+                                    var toDisable = ['ddlApprovedFacility','txtRoomDays',
+                                        'txtICUDays','txtHospDOD','txtExtimatedDays',
+                                        'ddlReceivedAccomodation','txtProbableDOA'];
+                                    toDisable.forEach(function(id) {
+                                        var el = document.getElementById(id);
+                                        if (el) el.disabled = true;
+                                    });
+                                    console.log('[ClaimAI] Fields re-disabled after save');
+                                }, 500);
                             } else {
-                                console.warn('[ClaimAI] btnHospDetailsSave not found');
+                                console.warn('[ClaimAI] btnHospDetailsSave not found — re-disabling fields');
+                                // Re-disable if button not found
+                                ['ddlApprovedFacility','txtRoomDays','txtICUDays'].forEach(function(id) {
+                                    var el = document.getElementById(id);
+                                    if (el) el.disabled = true;
+                                });
                             }
                         }, 300);
 
