@@ -7333,12 +7333,20 @@
                                              spectraFields.dischargeDate = fields.dischargeDate;
                     if (fields.doctorNotes)  spectraFields.doctorNotes   = fields.doctorNotes;
                     // Restore ApprovedFacilityID from DB on page load
+                    // Do NOT trigger('change') — it causes Spectra handlers to reset it
                     if (fields.approvedFacilityId) {
-                        var $aprvDdl = $('#ddlApprovedFacility');
-                        if ($aprvDdl.find('option[value="' + fields.approvedFacilityId + '"]').length > 0) {
-                            $aprvDdl.val(fields.approvedFacilityId).trigger('change');
-                        }
                         window._claimAI_approvedFacilityId = fields.approvedFacilityId;
+                        // Apply after all page load events have settled
+                        var _savedFacId = fields.approvedFacilityId;
+                        var _applyFacility = function() {
+                            var $aprvDdl = $('#ddlApprovedFacility');
+                            if ($aprvDdl.find('option[value="' + _savedFacId + '"]').length > 0) {
+                                $aprvDdl.val(_savedFacId);
+                                console.log('[ClaimAI] ApprovedFacility restored silently:', _savedFacId);
+                            }
+                        };
+                        setTimeout(_applyFacility, 1000);
+                        setTimeout(_applyFacility, 3000);
                     }
                 }
             } catch(e) {
@@ -7935,12 +7943,17 @@
             xhrFac.send(null);
             if (xhrFac.status === 200) {
                 var facFields = JSON.parse(xhrFac.responseText);
+                console.log('[ClaimAI] claimAI_restoreFields response:', JSON.stringify(facFields),
+                    'ddlApprovedFacility current val:', $('#ddlApprovedFacility').val(),
+                    'options count:', $('#ddlApprovedFacility option').length);
                 if (facFields.approvedFacilityId && facFields.approvedFacilityId !== '0') {
                     window._claimAI_approvedFacilityId = facFields.approvedFacilityId;
                     var $aprvDdl = $('#ddlApprovedFacility');
-                    if ($aprvDdl.find('option[value="' + facFields.approvedFacilityId + '"]').length > 0) {
+                    var optionExists = $aprvDdl.find('option[value="' + facFields.approvedFacilityId + '"]').length > 0;
+                    console.log('[ClaimAI] Attempting restore to:', facFields.approvedFacilityId, 'option exists:', optionExists);
+                    if (optionExists) {
                         $aprvDdl.val(facFields.approvedFacilityId);
-                        console.log('[ClaimAI] FacilityRestore set:', facFields.approvedFacilityId);
+                        console.log('[ClaimAI] FacilityRestore set to:', facFields.approvedFacilityId, 'actual val now:', $aprvDdl.val());
                     }
                 }
                 if (facFields.patientConditionId && facFields.patientConditionId !== '0') {
