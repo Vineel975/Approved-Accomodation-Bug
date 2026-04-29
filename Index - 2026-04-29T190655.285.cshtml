@@ -8681,18 +8681,27 @@
                 if (!event.data || event.data.source !== 'claimai') return;
 
                 if (event.data.type === 'setApprovedAccommodation') {
-                    var facilityId = event.data.facilityId;
-                    console.log('[ClaimAI] setApprovedAccommodation received. facilityId:', facilityId);
-                    if (facilityId) {
-                        var $ddl = $('#ddlApprovedFacility');
-                        var optExists = $ddl.find('option[value="' + facilityId + '"]').length > 0;
-                        console.log('[ClaimAI] ddlApprovedFacility option exists:', optExists, 'ddl disabled:', $ddl.is(':disabled'));
-                        if (optExists) {
-                            $ddl.val(facilityId).trigger('change');
-                        }
+                    // Approved accommodation = Availed accommodation (same)
+                    // Read directly from ddlReceivedAccomodation (availed)
+                    var availedFacilityId = $('#ddlReceivedAccomodation').val() || event.data.facilityId;
+                    console.log('[ClaimAI] setApprovedAccommodation: using availed value:', availedFacilityId);
+
+                    if (availedFacilityId) {
+                        var $ddlApprv = $('#ddlApprovedFacility');
+                        // Temporarily enable, set value, re-disable
+                        $ddlApprv.removeAttr('disabled');
+                        $ddlApprv.val(availedFacilityId);
+                        $ddlApprv.attr('disabled', 'disabled');
+                        window._claimAI_approvedFacilityId = availedFacilityId;
+                        console.log('[ClaimAI] ddlApprovedFacility set to:', availedFacilityId);
                     }
-                    window._claimAI_approvedFacilityId = facilityId || '';
-                    console.log('[ClaimAI] window._claimAI_approvedFacilityId set to:', window._claimAI_approvedFacilityId);
+
+                    // Set ICU Days = 1 for cataract day-care cases
+                    var $icuDays = $('#txtICUDays');
+                    if ($icuDays.length) {
+                        $icuDays.removeAttr('disabled').val('1').attr('disabled', 'disabled');
+                        console.log('[ClaimAI] ICU Days set to 1');
+                    }
                 }
 
                 if (event.data.type === 'copyAvailedToApproved') {
