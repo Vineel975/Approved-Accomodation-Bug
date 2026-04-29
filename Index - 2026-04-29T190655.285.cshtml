@@ -8787,6 +8787,33 @@
 
                     // Coding save is handled by setIcdSlots postMessage (sent after ICD fetch)
 
+                    // Set Approved Accommodation = Availed Accommodation
+                    var _availedVal = $('#ddlReceivedAccomodation').val();
+                    if (_availedVal) {
+                        var $apprDdl = $('#ddlApprovedFacility');
+                        $apprDdl.removeAttr('disabled').val(_availedVal).attr('disabled', 'disabled');
+                        window._claimAI_approvedFacilityId = _availedVal;
+                        console.log('[ClaimAI] ApprovedFacility set from setClinicalDetails:', _availedVal);
+                    }
+
+                    // Set ICU Days = 1 for cataract day-care cases
+                    var $icuField = $('#txtICUDays');
+                    if ($icuField.length) {
+                        $icuField.removeAttr('disabled').val('1').attr('disabled', 'disabled');
+                        console.log('[ClaimAI] ICU Days set to 1');
+                        // Update hdnDaysDetails [ICUDays, RoomDays]
+                        try {
+                            var _dArr = [1, 0];
+                            var _dVal = $('#hdnDaysDetails').val();
+                            if (_dVal && _dVal !== '') {
+                                var _dParsed = $.parseJSON(_dVal);
+                                if (_dParsed && _dParsed.length >= 2) _dArr = [1, _dParsed[1]];
+                            }
+                            $('#hdnDaysDetails').val(JSON.stringify(_dArr));
+                            console.log('[ClaimAI] hdnDaysDetails updated:', JSON.stringify(_dArr));
+                        } catch(e) { console.warn('[ClaimAI] hdnDaysDetails error:', e); }
+                    }
+
                     // Auto-save hospitalization details — delay 500ms to ensure
                     // setApprovedAccommodation postMessage has already fired and set window._claimAI_approvedFacilityId
                     setTimeout(function () {
