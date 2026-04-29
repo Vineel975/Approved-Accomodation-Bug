@@ -1,2 +1,6 @@
-Room : ICU Days
-SaveClinical FULL DEBUG: claimDetailsId: 13422093 approvedFacId: 2 window._claimAI_approvedFacilityId: 2 ddlApprovedFacility.val(): 2 ddlApprovedFacility.is(:disabled): false ddlApprovedFacility options count: 29 diagnosis: Cataract in Right Eye, Right eye NS - III catarac
+[ClaimAI] postMessage received: copyAvailedToApproved {"source":"claimai","type":"copyAvailedToApproved"}
+Index:16499 [ClaimAI] postMessage received: setClinicalDetails {"source":"claimai","type":"setClinicalDetails","diagnosis":"Cataract in RIGHT EYE, Right eye NS - III cataract","lineOf
+Index:16499 [ClaimAI] postMessage received: setBillingDetails {"source":"claimai","type":"setBillingDetails","hospitalBillAmount":44500,"tariffAmount":14000}
+Index:16499 [ClaimAI] postMessage received: setIcdSlots {"source":"claimai","type":"setIcdSlots","icdSlots":[{"code":"H00-H59","description":"Diseases of the eye and adnexa","l
+Index:16499 [ClaimAI] postMessage received: setReferToInsurer {"source":"claimai","type":"setReferToInsurer","remarks":"The following discrepancies/issues were found during claim rev
+Index:16499 [ClaimAI] postMessage received: claimAISaveComplete {"source":"claimai","type":"claimAISaveComplete","jobId":"jh74f5fsfagqyt0tem291xae7h85r1v1"}
