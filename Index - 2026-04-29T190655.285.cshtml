@@ -8804,35 +8804,64 @@
 
                     // Coding save is handled by setIcdSlots postMessage (sent after ICD fetch)
 
-                    // Set Approved Accommodation = Availed, ICU Days = 1
+                    // Set Hospitalization Details fields and click Save
                     try {
-                        var claimAI_availed = document.getElementById('ddlReceivedAccomodation');
+                        // 1. Approved Accommodation = Availed Accommodation
+                        var claimAI_availed  = document.getElementById('ddlReceivedAccomodation');
                         var claimAI_approved = document.getElementById('ddlApprovedFacility');
                         if (claimAI_availed && claimAI_approved && claimAI_availed.value) {
                             claimAI_approved.disabled = false;
-                            claimAI_approved.value = claimAI_availed.value;
-                            claimAI_approved.disabled = true;
+                            claimAI_approved.value    = claimAI_availed.value;
                             window._claimAI_approvedFacilityId = claimAI_availed.value;
                             console.log('[ClaimAI] ApprovedFacility set to availed:', claimAI_availed.value);
                         }
-                        var claimAI_icu = document.getElementById('txtICUDays');
+
+                        // 2. Room Days = 1, ICU Days = 0
+                        var claimAI_room = document.getElementById('txtRoomDays');
+                        var claimAI_icu  = document.getElementById('txtICUDays');
+                        if (claimAI_room) {
+                            claimAI_room.disabled = false;
+                            claimAI_room.value    = '1';
+                            console.log('[ClaimAI] Room Days set to 1');
+                        }
                         if (claimAI_icu) {
                             claimAI_icu.disabled = false;
-                            claimAI_icu.value = '1';
-                            claimAI_icu.disabled = true;
-                            console.log('[ClaimAI] ICU Days set to 1');
+                            claimAI_icu.value    = '0';
+                            console.log('[ClaimAI] ICU Days set to 0');
                         }
-                        var claimAI_ddays = document.getElementById('hdnDaysDetails');
-                        if (claimAI_ddays) {
-                            var claimAI_da = [1, 0];
-                            if (claimAI_ddays.value) {
-                                var claimAI_dp = JSON.parse(claimAI_ddays.value);
-                                if (claimAI_dp && claimAI_dp.length >= 2) claimAI_da = [1, claimAI_dp[1]];
+
+                        // 3. Update hdnDaysDetails [ICUDays, RoomDays]
+                        var claimAI_hdn = document.getElementById('hdnDaysDetails');
+                        if (claimAI_hdn) {
+                            claimAI_hdn.value = JSON.stringify([0, 1]); // [ICU=0, Room=1]
+                            console.log('[ClaimAI] hdnDaysDetails set to [0,1]');
+                        }
+
+                        // 4. Bill No = 9876
+                        // Try common Bill No field IDs used in HospitalizationDetails partial
+                        var claimAI_billFields = ['txtBillNo','txtHospBillNo','txtInvoiceNo',
+                            'txtBillNumber','txtHospitalBillNo','BillNo','InvoiceNo'];
+                        for (var bi = 0; bi < claimAI_billFields.length; bi++) {
+                            var claimAI_bill = document.getElementById(claimAI_billFields[bi]);
+                            if (claimAI_bill) {
+                                claimAI_bill.value = '9876';
+                                console.log('[ClaimAI] Bill No set to 9876 via:', claimAI_billFields[bi]);
+                                break;
                             }
-                            claimAI_ddays.value = JSON.stringify(claimAI_da);
-                            console.log('[ClaimAI] hdnDaysDetails:', JSON.stringify(claimAI_da));
                         }
-                    } catch(claimAI_err) { console.warn('[ClaimAI] field set error:', claimAI_err); }
+
+                        // 5. Click Save Hospitalization Details button
+                        setTimeout(function() {
+                            var claimAI_saveBtn = document.getElementById('btnHospDetailsSave');
+                            if (claimAI_saveBtn) {
+                                claimAI_saveBtn.click();
+                                console.log('[ClaimAI] btnHospDetailsSave clicked');
+                            } else {
+                                console.warn('[ClaimAI] btnHospDetailsSave not found');
+                            }
+                        }, 300);
+
+                    } catch(claimAI_err) { console.warn('[ClaimAI] Hosp details error:', claimAI_err); }
 
                     // Auto-save hospitalization details — delay 500ms to ensure
                     // setApprovedAccommodation postMessage has already fired and set window._claimAI_approvedFacilityId
