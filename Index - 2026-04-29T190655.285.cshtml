@@ -8702,6 +8702,22 @@
                         $icuDays.removeAttr('disabled').val('1').attr('disabled', 'disabled');
                         console.log('[ClaimAI] ICU Days set to 1');
                     }
+                    // Also update hdnDaysDetails JSON: [ICUDays, RoomDays]
+                    // hdnDaysDetails is read by Spectra's billing validation
+                    try {
+                        var _daysArr = [1, 0]; // ICU=1, Room=0 for day-care cataract
+                        var _existingDays = $('#hdnDaysDetails').val();
+                        if (_existingDays && _existingDays !== '') {
+                            var _parsed = $.parseJSON(_existingDays);
+                            if (_parsed && _parsed.length >= 2) {
+                                _daysArr = [1, _parsed[1]]; // Keep room days, override ICU=1
+                            }
+                        }
+                        $('#hdnDaysDetails').val(JSON.stringify(_daysArr));
+                        console.log('[ClaimAI] hdnDaysDetails updated:', JSON.stringify(_daysArr));
+                    } catch(e) {
+                        console.warn('[ClaimAI] hdnDaysDetails update failed:', e);
+                    }
                 }
 
                 if (event.data.type === 'copyAvailedToApproved') {
