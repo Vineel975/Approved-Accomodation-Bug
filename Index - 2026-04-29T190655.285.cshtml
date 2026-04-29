@@ -8679,6 +8679,7 @@
             // Listen for postMessage from ClaimAI iframe
             window.addEventListener('message', function(event) {
                 if (!event.data || event.data.source !== 'claimai') return;
+                console.log('[ClaimAI] postMessage received:', event.data.type, JSON.stringify(event.data).substring(0, 120));
 
                 if (event.data.type === 'setApprovedAccommodation') {
                     // Approved accommodation = Availed accommodation (same)
